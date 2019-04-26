@@ -239,11 +239,108 @@ afterEvaluate {
     }
 
     task dokkaWebsite(type: dokka.getClass()) {
-        outputFormat = 'kotlin-website'
+        outputFormat = 'kotlin-website-html'
         outputDirectory = "${rootProject.projectDir}/apidoc"
 
-        kotlinTasks { allCompileKotlinTasks }
+        kotlinTasks { [] }
+        multiplatform {
+            common { dokkaConfig ->
+                dokkaConfig.analysisPlatform = org.jetbrains.dokka.Platform.common
+                dokkaConfig.targets = ["common"]
 
-        reportUndocumented = false
+                allprojects {
+                    kotlin.sourceSets {
+                        commonMain {
+                            kotlin.srcDirs.each { currentSrcDir ->
+                                dokkaConfig.sourceRoot { path = currentSrcDir }
+                            }
+                        }
+                    }
+                }
+            }
+
+            jvm { dokkaConfig ->
+                dokkaConfig.analysisPlatform = org.jetbrains.dokka.Platform.jvm
+                 doFirst {
+                     dokkaConfig.classpath = allCompileKotlinTasks.collect { it.classpath.getFiles() }.flatten().collect { it.path }.toSet().toList()
+                 }
+                dokkaConfig.targets = ["jvm"]
+
+                allprojects {
+                    kotlin.sourceSets {
+                        commonMain {
+                            kotlin.srcDirs.each { currentSrcDir ->
+                                dokkaConfig.sourceRoot { path = currentSrcDir }
+                            }
+                        }
+                        jvmMain {
+                            kotlin.srcDirs.each { currentSrcDir ->
+                                dokkaConfig.sourceRoot { path = currentSrcDir }
+                            }
+                        }
+                    }
+                }
+            }
+
+            js { dokkaConfig ->
+                dokkaConfig.analysisPlatform = org.jetbrains.dokka.Platform.js
+                dokkaConfig.targets = ["js"]
+
+                allprojects {
+                    kotlin.sourceSets {
+                        commonMain {
+                            kotlin.srcDirs.each { currentSrcDir ->
+                                dokkaConfig.sourceRoot { path = currentSrcDir }
+                            }
+                        }
+                        jsMain {
+                            kotlin.srcDirs.each { currentSrcDir ->
+                                dokkaConfig.sourceRoot { path = currentSrcDir }
+                            }
+                        }
+                    }
+                }
+            }
+
+            posix { dokkaConfig ->
+                dokkaConfig.analysisPlatform = org.jetbrains.dokka.Platform.native
+                dokkaConfig.targets = ["posix"]
+
+                allprojects {
+                    kotlin.sourceSets {
+                        commonMain {
+                            kotlin.srcDirs.each { currentSrcDir ->
+                                dokkaConfig.sourceRoot { path = currentSrcDir }
+                            }
+                        }
+                        posixMain {
+                            kotlin.srcDirs.each { currentSrcDir ->
+                                dokkaConfig.sourceRoot { path = currentSrcDir }
+                            }
+                        }
+                    }
+                }
+            }
+
+            darwin { dokkaConfig ->
+                dokkaConfig.analysisPlatform = org.jetbrains.dokka.Platform.native
+                dokkaConfig.targets = ["darwin"]
+
+                allprojects {
+                    kotlin.sourceSets {
+                        commonMain {
+                            kotlin.srcDirs.each { currentSrcDir ->
+                                dokkaConfig.sourceRoot { path = currentSrcDir }
+                            }
+                        }
+                        darwinMain {
+                            kotlin.srcDirs.each { currentSrcDir ->
+                                dokkaConfig.sourceRoot { path = currentSrcDir }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
