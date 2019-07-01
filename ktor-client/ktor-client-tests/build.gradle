@@ -86,8 +86,10 @@ if (!project.ext.ideaActive) {
 }
 
 rootProject.allprojects {
-    it.tasks.matching { it.name in testTasks }*.configure { testTask ->
-        testTask.dependsOn startTestServer
+    if (it.name != 'ktor-io' && it.name != 'ktor-utils') {
+        it.tasks.matching { it.name in testTasks }*.configure { testTask ->
+            testTask.dependsOn startTestServer
+        }
     }
 }
 
