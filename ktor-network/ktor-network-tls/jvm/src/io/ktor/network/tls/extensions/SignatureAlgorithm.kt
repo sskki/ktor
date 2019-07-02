@@ -5,7 +5,7 @@
 package io.ktor.network.tls.extensions
 
 import io.ktor.network.tls.*
-import kotlinx.io.core.*
+import io.ktor.utils.io.core.*
 
 /**
  * Hash algorithms

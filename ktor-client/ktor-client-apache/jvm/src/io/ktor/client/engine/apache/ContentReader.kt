@@ -5,7 +5,7 @@
 package io.ktor.client.engine.apache
 
 import kotlinx.coroutines.*
-import kotlinx.coroutines.io.*
+import io.ktor.utils.io.*
 import org.apache.http.nio.*
 import java.nio.channels.*
 import java.util.concurrent.*
