@@ -11,7 +11,7 @@ import javax.net.ssl.*
 /**
  * [TLSConfig] builder.
  */
-class TLSConfigBuilder {
+actual class TLSConfigBuilder {
     /**
      * List of client certificate chains with private keys.
      */
@@ -52,7 +52,7 @@ class TLSConfigBuilder {
     /**
      * Create [TLSConfig].
      */
-    fun build(): TLSConfig = TLSConfig(
+    actual fun build(): TLSConfig = TLSConfig(
         random ?: SecureRandom(),
         certificates, trustManager as? X509TrustManager ?: findTrustManager(),
         cipherSuites, serverName

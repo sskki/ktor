@@ -7,7 +7,6 @@ package io.ktor.network.tls
 import io.ktor.network.tls.extensions.*
 import kotlinx.coroutines.io.*
 import kotlinx.io.core.*
-import java.io.*
 import java.math.*
 import java.security.cert.*
 import java.security.spec.*
@@ -123,8 +122,6 @@ internal fun ByteReadPacket.readECPoint(fieldSize: Int): ECPoint {
         BigInteger(1, readBytes(componentLength))
     )
 }
-
-internal class TLSException(message: String, cause: Throwable? = null) : IOException(message, cause)
 
 private suspend fun ByteReadChannel.readTLSVersion() =
     TLSVersion.byCode(readShortCompatible() and 0xffff)
