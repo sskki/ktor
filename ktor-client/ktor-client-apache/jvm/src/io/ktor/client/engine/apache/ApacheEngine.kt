@@ -13,7 +13,8 @@ import org.apache.http.impl.nio.reactor.*
 private const val MAX_CONNECTIONS_COUNT = 1000
 private const val IO_THREAD_COUNT_DEFAULT = 4
 
-internal class ApacheEngine(override val config: ApacheEngineConfig) : HttpClientJvmEngine("ktor-apache") {
+internal class ApacheEngine(override val config: ApacheEngineConfig) : HttpClientEngine, CallScope("ktor-apache") {
+    override val dispatcher: CoroutineDispatcher by lazy { createClientDispatcher(config.threadsCount) }
 
     private val engine: CloseableHttpAsyncClient = prepareClient().apply { start() }
 

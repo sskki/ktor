@@ -8,6 +8,7 @@ import io.ktor.client.utils.*
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.util.*
+import kotlinx.coroutines.*
 
 /**
  * Default user agent to use in ktor client.
@@ -44,3 +45,6 @@ fun mergeHeaders(
     type?.let { block(HttpHeaders.ContentType, it) }
     length?.let { block(HttpHeaders.ContentLength, it) }
 }
+
+@InternalAPI
+expect fun createClientDispatcher(threadsCount: Int): CoroutineDispatcher

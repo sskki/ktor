@@ -22,7 +22,10 @@ import kotlin.coroutines.*
 /**
  * Android client engine
  */
-class AndroidClientEngine(override val config: AndroidEngineConfig) : HttpClientJvmEngine("ktor-android") {
+class AndroidClientEngine(
+    override val config: AndroidEngineConfig
+) : HttpClientEngine, CallScope("ktor-android") {
+    override val dispatcher: CoroutineDispatcher by lazy { createClientDispatcher(config.threadsCount) }
 
     override suspend fun execute(
         data: HttpRequestData

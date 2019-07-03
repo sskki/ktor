@@ -5,30 +5,20 @@
 package io.ktor.client.engine
 
 import kotlinx.coroutines.*
-import java.util.concurrent.*
+import kotlinx.io.core.*
 import kotlin.coroutines.*
 
 /**
  * Base jvm implementation for [HttpClientEngine]
  */
 @Suppress("KDocMissingDocumentation")
-abstract class HttpClientJvmEngine(engineName: String) : HttpClientEngine {
+abstract class CallScope(name: String) : CoroutineScope, Closeable {
     private val clientContext = SupervisorJob()
-    private val _dispatcher by lazy {
-        Executors.newFixedThreadPool(config.threadsCount) {
-            Thread(it).apply {
-                isDaemon = true
-            }
-        }.asCoroutineDispatcher()
-    }
 
-    @UseExperimental(InternalCoroutinesApi::class)
-    override val dispatcher: CoroutineDispatcher
-        get() = _dispatcher
+    abstract val dispatcher: CoroutineDispatcher
 
-    @UseExperimental(InternalCoroutinesApi::class)
     override val coroutineContext: CoroutineContext by lazy {
-        _dispatcher + clientContext + CoroutineName("$engineName-context")
+        dispatcher + clientContext + CoroutineName("$name-context")
     }
 
     /**
@@ -57,7 +47,10 @@ abstract class HttpClientJvmEngine(engineName: String) : HttpClientEngine {
         clientContext.complete()
 
         clientContext.invokeOnCompletion {
-            _dispatcher.close()
+            val current = dispatcher
+            if (current is Closeable) {
+                current.close()
+            }
         }
     }
 }
