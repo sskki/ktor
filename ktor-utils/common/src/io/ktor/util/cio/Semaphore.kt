@@ -5,9 +5,9 @@
 package io.ktor.util.cio
 
 import io.ktor.util.*
+import io.ktor.util.collections.*
 import kotlinx.atomicfu.*
 import kotlinx.coroutines.*
-import java.util.concurrent.*
 import kotlin.coroutines.*
 
 /**
@@ -17,7 +17,7 @@ import kotlin.coroutines.*
 @InternalAPI
 class Semaphore(val limit: Int) {
     private val permits = atomic(limit)
-    private val waiters = ConcurrentHashMap<CancellableContinuation<Unit>, Unit>()
+    private val waiters = ConcurrentMap<CancellableContinuation<Unit>, Unit>()
 
     init {
         check(limit > 0) { "Semaphore limit should be > 0" }
@@ -53,7 +53,7 @@ class Semaphore(val limit: Int) {
         var value = permits.incrementAndGet()
 
         while (value > 0 && waiters.isNotEmpty()) {
-            val key = waiters.keys().nextElement() ?: continue
+            val key = waiters.keys.firstOrNull() ?:continue
             waiters.remove(key) ?: continue
 
             key.resume(Unit)

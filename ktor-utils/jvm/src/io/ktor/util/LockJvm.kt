@@ -8,7 +8,6 @@ package io.ktor.util
 
 import kotlinx.io.core.*
 import java.util.concurrent.locks.*
-import java.util.concurrent.locks.Lock
 
 @InternalAPI
 actual class Lock : Closeable {
