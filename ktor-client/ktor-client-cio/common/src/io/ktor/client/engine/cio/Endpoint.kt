@@ -8,13 +8,13 @@ import io.ktor.client.request.*
 import io.ktor.network.sockets.*
 import io.ktor.network.sockets.Socket
 import io.ktor.network.tls.*
+import io.ktor.network.util.*
 import io.ktor.util.*
 import io.ktor.util.date.*
 import kotlinx.atomicfu.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.*
-import java.io.*
-import java.net.*
+import kotlinx.io.core.*
 import kotlin.coroutines.*
 
 internal class Endpoint(
@@ -26,7 +26,7 @@ internal class Endpoint(
     override val coroutineContext: CoroutineContext,
     private val onDone: () -> Unit
 ) : CoroutineScope, Closeable {
-    private val address = InetSocketAddress(host, port)
+    private val address = NetworkAddress(host, port)
 
     private val connections: AtomicInt = atomic(0)
     private val tasks: Channel<RequestTask> = Channel(Channel.UNLIMITED)
@@ -140,21 +140,14 @@ internal class Endpoint(
 
         try {
             repeat(retryAttempts) {
-                val connection = withTimeoutOrNull(connectTimeout) { connectionFactory.connect(address) }
-                    ?: return@repeat
+                val connection = withTimeoutOrNull(connectTimeout) {
+                    connectionFactory.connect(address)
+                } ?: return@repeat
 
                 if (!secure) return@connect connection
 
                 try {
-                    with(config.https) {
-                        return@connect connection.tls(coroutineContext) {
-                            trustManager = this@with.trustManager
-                            random = this@with.random
-                            cipherSuites = this@with.cipherSuites
-                            serverName = this@with.serverName ?: address.hostName
-                            certificates += this@with.certificates
-                        }
-                    }
+                    return connection.tls(coroutineContext, config.https.build())
                 } catch (cause: Throwable) {
                     try {
                         connection.close()

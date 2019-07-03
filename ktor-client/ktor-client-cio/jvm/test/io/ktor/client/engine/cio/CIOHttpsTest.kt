@@ -182,14 +182,14 @@ class CIOHttpsTest : TestWithKtor() {
         test { client ->
             val testSize = 10
             var received = 0
-            client.async {
+            withContext(client.coroutineContext) {
                 repeat(testSize) {
                     client.get<HttpResponse>("https://www.facebook.com").use { response ->
                         assertTrue(response.status.isSuccess())
                         received++
                     }
                 }
-            }.await()
+            }
 
             assertEquals(testSize, received)
         }
