@@ -31,7 +31,7 @@ class DownloadTest : ClientLoader() {
     }
 
     @Test
-    fun testEchoWithChannelBody() = clientTests {
+    fun testEchoWithChannelBody() = clientTests("Jetty") {
         val text = "Hello, world"
         test { client ->
             val response = client.get<ByteReadChannel>("http://www.google.com/")
