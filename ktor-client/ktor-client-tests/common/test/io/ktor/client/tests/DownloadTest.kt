@@ -11,7 +11,7 @@ import kotlin.test.*
 
 class DownloadTest : ClientLoader() {
     @Test
-    fun testDownloadGoogle() = clientTests {
+    fun testDownloadGoogle() = clientTests("Jetty") {
         test { client ->
             val response = client.get<String>("http://www.google.com/")
             assertTrue { response.isNotEmpty() }

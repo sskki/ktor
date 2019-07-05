@@ -82,7 +82,7 @@ class HttpRedirectTest : ClientLoader() {
     }
 
     @Test
-    fun httpStatsTest() = clientTests {
+    fun httpStatsTest() = clientTests("Jetty") {
         test { client ->
             client.get<HttpResponse>("https://httpstat.us/301").use { response ->
                 assertEquals(HttpStatusCode.OK, response.status)
@@ -109,7 +109,7 @@ class HttpRedirectTest : ClientLoader() {
     }
 
     @Test
-    fun redirectHostAbsolute() = clientTests("js") {
+    fun redirectHostAbsolute() = clientTests("js", "Jetty") {
         test { client ->
             client.get<HttpResponse>("$TEST_URL_BASE/directory/hostAbsoluteRedirect").use {
                 assertEquals("200 OK", it.readText())

@@ -57,6 +57,7 @@ internal class JettyResponseListener(
     }
 
     override fun onData(stream: Stream, frame: DataFrame, callback: Callback) {
+        println("Data")
         val data = frame.data!!
         try {
             if (!backendChannel.offer(JettyResponseChunk(data, callback))) {
@@ -68,6 +69,21 @@ internal class JettyResponseListener(
             backendChannel.close(cause)
             callback.failed(cause)
         }
+    }
+
+    override fun onClosed(stream: Stream) {
+        if ((stream as HTTP2Stream).isReset) {
+            backendChannel.close()
+        }
+    }
+
+    override fun onReset(stream: Stream?, frame: ResetFrame?, callback: Callback?) {
+        backendChannel.close()
+    }
+
+    override fun onFailure(stream: Stream, error: Int, reason: String, callback: Callback) {
+        backendChannel.close(IOException(reason))
+        callback.succeeded()
     }
 
     override fun onHeaders(stream: Stream, frame: HeadersFrame) {
